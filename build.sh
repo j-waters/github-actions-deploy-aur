@@ -13,6 +13,7 @@ commit_message=$INPUT_COMMIT_MESSAGE
 allow_empty_commits=$INPUT_ALLOW_EMPTY_COMMITS
 force_push=$INPUT_FORCE_PUSH
 ssh_keyscan_types=$INPUT_SSH_KEYSCAN_TYPES
+update_pkgver=$INPUT_UPDATE_PKGVER
 
 assert_non_empty() {
   name=$1
@@ -68,6 +69,20 @@ else
   echo "Using pkgname '$pkgname' from argument"
   assert_non_empty inputs.pkgname "$pkgname"
 fi
+
+echo '::group::Updating pkgver'
+if [ "$update_pkgver" = "true" ]; then
+  echo 'Running `makepkg -od` to update pkgver'
+  mkdir -p /tmp/makepkg
+  cp "$pkgbuild" /tmp/makepkg/PKGBUILD
+  (
+    cd /tmp/makepkg;
+    makepkg -od;
+  )
+  pkgbuild=/tmp/makepkg/PKGBUILD
+else
+  echo 'Not updating pkgver'
+fi
 echo '::endgroup::'
 
 echo '::group::Cloning AUR package into /tmp/local-repo'
@@ -91,6 +106,7 @@ echo '::group::Generating .SRCINFO'
 cd /tmp/local-repo
 makepkg --printsrcinfo >.SRCINFO
 echo '::endgroup::'
+
 
 echo '::group::Committing files to the repository'
 if [[ -z "$assets" ]]; then
