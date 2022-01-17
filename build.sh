@@ -86,7 +86,8 @@ fi
 echo '::endgroup::'
 
 echo '::group::Cloning AUR package into /tmp/local-repo'
-git clone -b master -v "https://aur.archlinux.org/${pkgname}.git" /tmp/local-repo
+git clone -b master -v "https://aur.archlinux.org/${pkgname}.git" /tmp/local-repo || \
+git clone -v "https://aur.archlinux.org/${pkgname}.git" /tmp/local-repo
 echo '::endgroup::'
 
 echo '::group::Copying files into /tmp/local-repo'
